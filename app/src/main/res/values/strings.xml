@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Stride</string>
+    <string name="how_many_steps_have_you_taken_today">How many steps have you taken today?</string>
+    <string name="save">Save</string>
+    <string name="today_you_have_taken">Today, you have taken</string>
+    <string name="your_step_count_so_far">Your step count so far</string>
+    <string name="filter">Filter</string>
+    <string name="new_steps_record_validation_error_msg">Please enter the number of steps you have taken today</string>
+    <string name="steps_count">%d steps</string>
+    <string name="step_count">%d step</string>
+</resources>
