@@ -28,7 +28,7 @@ class RecordStepsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_record_step)
+        setContentView(binding.root)
 
         viewModel.observableState.observe(this, this::renderState)
 

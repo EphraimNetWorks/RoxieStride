@@ -17,7 +17,7 @@ class SplashScreenViewModel @Inject constructor(
 ) : BaseViewModel<SplashAction, SplashState>() {
 
     private val reducer: Reducer<SplashState, SplashChange> = { state, change ->
-        val newState = when(change){
+        when(change){
             is SplashChange.Loading-> state.copy(isIdle = false, isLoading = true, isError = false, error = "")
             is SplashChange.HasStepsRecordForToday -> {
                 val isRecentToday = change.hasTodaysRecord
@@ -29,8 +29,6 @@ class SplashScreenViewModel @Inject constructor(
                 error = change.errorMessage
             )
         }
-        savedState.set(SAVED_STATE_KEY, newState)
-        newState
     }
 
     override val initialState: SplashState
@@ -59,7 +57,10 @@ class SplashScreenViewModel @Inject constructor(
             .scan(initialState, reducer)
             .filter { !it.isIdle && !it.isLoading }
             .distinctUntilChanged()
-            .subscribe(state::postValue, Timber::e)
+            .subscribe({
+                state.postValue(it)
+                savedState.set(SAVED_STATE_KEY, it)
+            }, Timber::e)
     }
 
     override fun onCleared() {

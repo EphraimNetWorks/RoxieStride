@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import com.example.stride.R
-import com.example.stride.databinding.ActivitySplashScreenBinding
 import com.example.stride.ui.past_steps.PastStepsActivity
 import com.example.stride.ui.record_step.RecordStepsActivity
 import com.example.stride.utils.toast
@@ -17,10 +16,6 @@ import timber.log.Timber
 class SplashScreenActivity : AppCompatActivity() {
 
     private val viewModel: SplashScreenViewModel by viewModels()
-
-    private val binding by lazy {
-        ActivitySplashScreenBinding.inflate(layoutInflater)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +31,7 @@ class SplashScreenActivity : AppCompatActivity() {
             when{
                 isLoading-> renderHasTodaysRecordLoading()
                 isError-> renderHasTodaysRecordError(error)
-                isMostRecentRecordToday->renderHasTodaysRecordSuccess(isMostRecentRecordToday)
+                else->renderHasTodaysRecordSuccess(isMostRecentRecordToday)
             }
         }
     }
@@ -52,9 +47,9 @@ class SplashScreenActivity : AppCompatActivity() {
 
     private fun renderHasTodaysRecordSuccess(isMostRecentToday: Boolean){
         val intent = if(isMostRecentToday){
-            RecordStepsActivity.newInstance(this)
-        }else{
             PastStepsActivity.newInstance(this)
+        }else{
+            RecordStepsActivity.newInstance(this)
         }
         startActivity(intent)
     }

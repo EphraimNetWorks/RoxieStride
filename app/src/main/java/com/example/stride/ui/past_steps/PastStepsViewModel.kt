@@ -23,7 +23,7 @@ class PastStepsViewModel @Inject constructor(
 ): BaseViewModel<PastStepsAction,PastStepsState>() {
 
     private val reducer: Reducer<PastStepsState, PastStepsChange> = { state, change ->
-        val newState = when(change){
+        when(change){
             is PastStepsChange.PastRecordsLoading -> {
                 state.copy(isIdle = false, isLoading = true, isError = false, error = "")
             }
@@ -43,8 +43,6 @@ class PastStepsViewModel @Inject constructor(
                 state.copy(isLoading = false, isError = true, error = change.errorMessage)
             }
         }
-        savedState.set(SAVED_STATE_KEY,newState)
-        newState
     }
 
     override val initialState: PastStepsState
@@ -88,7 +86,10 @@ class PastStepsViewModel @Inject constructor(
             .scan(initialState, reducer)
             .filter { !it.isIdle && !it.isLoading }
             .distinctUntilChanged()
-            .subscribe(state::postValue, Timber::e)
+            .subscribe({
+                state.postValue(it)
+                savedState.set(SAVED_STATE_KEY,it)
+            }, Timber::e)
     }
 
     override fun onCleared() {

@@ -18,13 +18,11 @@ class RecordStepsViewModel @Inject constructor(
 ): BaseViewModel<RecordStepsAction,RecordStepsState>() {
 
     private val reducer: Reducer<RecordStepsState, RecordStepsChange> = { state, change ->
-        val newState = when(change){
+        when(change){
             is RecordStepsChange.NewRecordLoading-> state.copy(isIdle = false, isLoading = true, isError = false, error = "")
             is RecordStepsChange.NewRecordSuccess -> state.copy(isLoading = false, isSuccess = true)
             is RecordStepsChange.NewRecordError -> state.copy(isLoading = false, isError = true, error = change.errorMessage)
         }
-        savedState.set(SAVED_STATE_KEY,newState)
-        newState
     }
 
     override val initialState: RecordStepsState
@@ -51,9 +49,12 @@ class RecordStepsViewModel @Inject constructor(
 
         disposables += newRecordChange
             .scan(initialState, reducer)
-            .filter { !it.isIdle && !it.isLoading }
+            .filter { !it.isIdle }
             .distinctUntilChanged()
-            .subscribe(state::postValue, Timber::e)
+            .subscribe({
+                savedState.set(SAVED_STATE_KEY,it)
+                state.postValue(it)
+            }, Timber::e)
     }
 
     override fun onCleared() {

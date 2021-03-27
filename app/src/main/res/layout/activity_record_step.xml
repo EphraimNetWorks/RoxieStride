@@ -30,7 +30,8 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textSize="32sp"/>
+            android:textSize="32sp"
+            android:gravity="center"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_button"

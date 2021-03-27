@@ -28,7 +28,7 @@ class PastStepsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_past_steps)
+        setContentView(binding.root)
 
         viewModel.observableState.observe(this, this::renderState)
 

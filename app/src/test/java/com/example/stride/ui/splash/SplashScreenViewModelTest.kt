@@ -7,7 +7,7 @@ import com.example.stride.RxTestSchedulerRule
 import com.example.stride.data.local.entity.StepsRecord
 import com.example.stride.domain.steps_record.GetTodayRecordUseCase
 import com.example.stride.utils.Optional
-import io.reactivex.Single
+import io.reactivex.subjects.BehaviorSubject
 import org.junit.Before
 
 import org.junit.Rule
@@ -44,7 +44,7 @@ class SplashScreenViewModelTest {
         val todaysRecord = StepsRecord("",0)
         val recordExistState = SplashState(isMostRecentRecordToday = true)
         whenever(getTodayRecordUseCase.getTodaysRecord())
-            .thenReturn(Single.just(Optional(todaysRecord)).toObservable())
+            .thenReturn(BehaviorSubject.just(Optional(todaysRecord)))
 
         //WHEN
         sut.dispatch(SplashAction.CheckForTodaysStepRecord)
@@ -60,7 +60,7 @@ class SplashScreenViewModelTest {
         //GIVEN
         val absentRecordState = SplashState(isMostRecentRecordToday = false)
         whenever(getTodayRecordUseCase.getTodaysRecord())
-            .thenReturn(Single.just(Optional<StepsRecord>(null)).toObservable())
+            .thenReturn(BehaviorSubject.just(Optional(null)))
 
         //WHEN
         sut.dispatch(SplashAction.CheckForTodaysStepRecord)
@@ -77,7 +77,7 @@ class SplashScreenViewModelTest {
         val errMsg = "Error"
         val errorState = SplashState(isError = true, error = errMsg)
         whenever(getTodayRecordUseCase.getTodaysRecord())
-            .thenReturn(Single.error<Optional<StepsRecord>>(RuntimeException(errMsg)).toObservable())
+            .thenReturn(BehaviorSubject.error(RuntimeException(errMsg)))
 
         //WHEN
         sut.dispatch(SplashAction.CheckForTodaysStepRecord)
