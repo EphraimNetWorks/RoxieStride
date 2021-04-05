@@ -62,7 +62,6 @@ class SplashScreenViewModel @Inject constructor(
                 savedState.set(SAVED_STATE_KEY, it)
             }, Timber::e)
 
-        dispatch(SplashAction.CheckForTodaysStepRecord)
 
 
     }
