@@ -7,6 +7,7 @@ import com.ww.roxie.BaseViewModel
 import com.ww.roxie.Reducer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.ofType
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
@@ -83,11 +84,14 @@ class PastStepsViewModel @Inject constructor(
         val allChanges = Observable.merge(todaysRecordChange, pastRecordsChange)
 
         disposables += allChanges
+            .subscribeOn(Schedulers.io())
             .scan(initialState, reducer)
-            .filter { !it.isIdle && !it.isLoading }
+            .filter { !it.isIdle }
             .distinctUntilChanged()
+            .doOnNext { Timber.d("Received state: $it") }
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                state.postValue(it)
+                state.value = it
                 savedState.set(SAVED_STATE_KEY,it)
             }, Timber::e)
     }

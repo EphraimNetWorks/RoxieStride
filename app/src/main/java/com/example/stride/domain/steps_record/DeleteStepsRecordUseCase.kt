@@ -16,22 +16,20 @@ class DeleteStepsRecordUseCase @Inject constructor(
     private val stepsDao: StepsRecordDao
 ): BaseUseCase() {
 
-    private val _deleteRecordObs = PublishSubject.create<Boolean>()
-
     fun deleteRecord(record:StepsRecord): Observable<Boolean> {
 
-        disposables += stepsRecordService.deleteRecord(record)
-            .subscribe{ result->
-                when(result){
-                    is Result.Success -> {
-                        run { stepsDao.delete(record) }
-                        _deleteRecordObs.onNext(true)
+        return stepsRecordService.deleteRecord(record)
+            .map {
+                when(it){
+                    is Result.Success<*> -> {
+                        stepsDao.delete(record).subscribeOn(Schedulers.io())
+                        true
                     }
-                    is Result.Error -> _deleteRecordObs.onError(result.throwable)
+                    is Result.Error ->{
+                        throw it.throwable
+                    }
                 }
-            }
-
-        return  _deleteRecordObs
+            }.toObservable()
     }
 
 }

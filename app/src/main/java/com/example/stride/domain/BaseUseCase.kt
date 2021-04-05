@@ -10,6 +10,4 @@ abstract class BaseUseCase {
         disposables.dispose()
     }
 
-    protected fun run(block:()->Unit) = Executors.newSingleThreadExecutor().run{block.invoke()}
-
 }

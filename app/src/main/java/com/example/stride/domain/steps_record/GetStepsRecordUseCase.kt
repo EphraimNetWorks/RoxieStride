@@ -12,7 +12,7 @@ import com.example.stride.domain.BaseUseCase
 import com.example.stride.ui.past_steps.Filter
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -24,23 +24,12 @@ class GetStepsRecordUseCase @Inject constructor(
     private val stepsDao: StepsRecordDao
 ): BaseUseCase() {
 
-    private val allRecords = PublishSubject.create<List<StepsRecord>>()
-
     @ExperimentalCoroutinesApi
     fun getRecords(filter: Filter):Observable<PagingData<StepsRecord>>{
 
         val fromDate = filterToFromDate(filter)
 
-        disposables += stepsRecordService.getAllStepsRecords()
-            .subscribe{ result->
-                when(result){
-                    is Result.Success -> {
-                        val data = result.data.data ?: listOf()
-                        run{ stepsDao.save(*data.toTypedArray()) }
-                    }
-                    is Result.Error -> allRecords.onError(result.throwable)
-                }
-            }
+        disposables += refreshStepRecords().subscribeOn(Schedulers.io()).subscribe()
 
         return  Pager(
             config = PagingConfig(
@@ -50,6 +39,20 @@ class GetStepsRecordUseCase @Inject constructor(
                 initialLoadSize = 40),
             pagingSourceFactory = { stepsDao.getStepRecords(fromDate) }
         ).observable
+    }
+
+    fun refreshStepRecords():Observable<Boolean>{
+        return stepsRecordService.getAllStepsRecords()
+            .map {result->
+                when(result){
+                    is Result.Success -> {
+                        val data = result.data.data ?: listOf()
+                        stepsDao.save(*data.toTypedArray()).subscribeOn(Schedulers.io())
+                        true
+                    }
+                    is Result.Error -> throw result.throwable
+                }
+            }.toObservable()
     }
 
     private fun filterToFromDate(filter: Filter):String{

@@ -7,6 +7,7 @@ import com.ww.roxie.Reducer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxkotlin.ofType
 import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -21,9 +22,10 @@ class SplashScreenViewModel @Inject constructor(
             is SplashChange.Loading-> state.copy(isIdle = false, isLoading = true, isError = false, error = "")
             is SplashChange.HasStepsRecordForToday -> {
                 val isRecentToday = change.hasTodaysRecord
-                state.copy(isLoading = false, isMostRecentRecordToday = isRecentToday)
+                state.copy(isIdle = false, isLoading = false, isMostRecentRecordToday = isRecentToday)
             }
             is SplashChange.HasStepsRecordForTodayError -> state.copy(
+                isIdle = false,
                 isLoading = false,
                 isError = true,
                 error = change.errorMessage
@@ -39,10 +41,10 @@ class SplashScreenViewModel @Inject constructor(
     }
 
     private fun bindActions(){
-
-        val mostRecentRecordChange = actions.ofType<SplashAction.CheckForTodaysStepRecord>()
+        disposables += actions.ofType<SplashAction.CheckForTodaysStepRecord>()
             .switchMap {_->
                 getTodayRecordUseCase.getTodaysRecord()
+                    .subscribeOn(Schedulers.io())
                     .map<SplashChange> {
                         SplashChange.HasStepsRecordForToday(it.value != null)
                     }
@@ -51,16 +53,17 @@ class SplashScreenViewModel @Inject constructor(
                     }
                     .startWith(SplashChange.Loading)
             }
+                .subscribeOn(Schedulers.io())
+                .scan(initialState, reducer)
+                .filter { !it.isIdle && !it.isLoading }
+                .distinctUntilChanged()
+                .subscribe({
+                    state.postValue(it)
+                    savedState.set(SAVED_STATE_KEY, it)
+                }, Timber::e)
 
 
-        disposables += mostRecentRecordChange
-            .scan(initialState, reducer)
-            .filter { !it.isIdle && !it.isLoading }
-            .distinctUntilChanged()
-            .subscribe({
-                state.postValue(it)
-                savedState.set(SAVED_STATE_KEY, it)
-            }, Timber::e)
+
     }
 
     override fun onCleared() {

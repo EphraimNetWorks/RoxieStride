@@ -5,6 +5,7 @@ import com.example.stride.domain.steps_record.SaveStepsRecordUseCase
 import com.ww.roxie.BaseViewModel
 import com.ww.roxie.Reducer
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.ofType
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
@@ -20,8 +21,8 @@ class RecordStepsViewModel @Inject constructor(
     private val reducer: Reducer<RecordStepsState, RecordStepsChange> = { state, change ->
         when(change){
             is RecordStepsChange.NewRecordLoading-> state.copy(isIdle = false, isLoading = true, isError = false, error = "")
-            is RecordStepsChange.NewRecordSuccess -> state.copy(isLoading = false, isSuccess = true)
-            is RecordStepsChange.NewRecordError -> state.copy(isLoading = false, isError = true, error = change.errorMessage)
+            is RecordStepsChange.NewRecordSuccess -> state.copy(isIdle = false, isLoading = false, isSuccess = true)
+            is RecordStepsChange.NewRecordError -> state.copy(isIdle = false, isLoading = false, isError = true, error = change.errorMessage)
         }
     }
 
@@ -48,12 +49,17 @@ class RecordStepsViewModel @Inject constructor(
             }
 
         disposables += newRecordChange
+            .subscribeOn(Schedulers.io())
             .scan(initialState, reducer)
-            .filter { !it.isIdle }
+            .filter {
+                !it.isIdle
+            }
             .distinctUntilChanged()
-            .subscribe({
-                savedState.set(SAVED_STATE_KEY,it)
-                state.postValue(it)
+            .doOnNext { Timber.d("Received state: $it") }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ newState->
+                state.value = newState
+                savedState.set(SAVED_STATE_KEY,newState)
             }, Timber::e)
     }
 

@@ -7,11 +7,13 @@ import com.example.stride.data.local.entity.StepsRecord
 import com.example.stride.data.remote.Result
 import com.example.stride.data.remote.response.StepsRecordResponse
 import com.example.stride.data.remote.services.StepsRecordService
+import com.example.stride.utils.Optional
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
+import io.reactivex.observers.TestObserver
 import org.junit.Before
 
-import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.*
@@ -46,28 +48,33 @@ class GetTodayRecordUseCaseTest {
         //GIVEN
         whenever(stepsRecordDao.getDayStepsRecord(today))
             .thenReturn(Flowable.just(todaysRecord))
+        whenever(stepsRecordDao.save(any()))
+            .thenReturn(Completable.complete())
         whenever(stepsRecordService.getAllStepsRecords())
             .thenReturn(Single.just(Result.Success(StepsRecordResponse(listOf()))))
+        val testObserver = TestObserver<Any>()
 
         //WHEN
-        val resultObs = sut.getTodaysRecord()
+        sut.getTodaysRecord().subscribe(testObserver)
 
         //THEN
+        testObserver.assertNoErrors()
+        testObserver.assertValueAt(0, Optional(todaysRecord))
         verify(stepsRecordDao).getDayStepsRecord(today)
-        resultObs.subscribe {
-            assertEquals(todaysRecord, it.value)
-        }
+
     }
 
     @Test
     fun `Given a list of steps record is returned, when stepsService getAllStepsRecord is called, then save the list to local database`(){
         //GIVEN
         whenever(stepsRecordDao.getDayStepsRecord(today))
-                .thenReturn(Flowable.error(RuntimeException()))
+                .thenReturn(Flowable.just<StepsRecord>(StepsRecord("",0)))
         whenever(stepsRecordService.getAllStepsRecords())
                 .thenReturn(Single.just(Result.Success(StepsRecordResponse(listOf(todaysRecord)))))
+        val testObserver = TestObserver<Any>()
+
         //WHEN
-        sut.getTodaysRecord()
+        sut.getTodaysRecord().subscribe(testObserver)
 
         //THEN
         verify(stepsRecordService, only()).getAllStepsRecords()
@@ -82,14 +89,14 @@ class GetTodayRecordUseCaseTest {
                 .thenReturn(Flowable.error(RuntimeException(testError)))
         whenever(stepsRecordService.getAllStepsRecords())
                 .thenReturn(Single.error(RuntimeException(testError)))
+        val testObserver = TestObserver<Any>()
 
         //WHEN
-        val resultObs = sut.getTodaysRecord()
+        sut.getTodaysRecord().subscribe(testObserver)
 
         //THEN
+        testObserver.assertErrorMessage(testError)
         verify(stepsRecordService, only()).getAllStepsRecords()
-        resultObs.doOnError {
-            assertEquals(it.message, testError)
-        }
+        verify(stepsRecordDao, never()).save(any())
     }
 }

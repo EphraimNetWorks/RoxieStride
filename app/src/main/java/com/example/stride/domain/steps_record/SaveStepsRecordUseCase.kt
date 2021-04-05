@@ -9,6 +9,7 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import timber.log.Timber
 import javax.inject.Inject
 
 class SaveStepsRecordUseCase @Inject constructor(
@@ -16,23 +17,21 @@ class SaveStepsRecordUseCase @Inject constructor(
     private val stepsDao: StepsRecordDao
 ): BaseUseCase() {
 
-    private val _saveRecordObs = PublishSubject.create<Boolean>()
+    fun saveRecord(record: StepsRecord): Observable<*> {
 
-    fun saveRecord(record: StepsRecord): Observable<Boolean> {
-
-        disposables += stepsRecordService.addNewRecord(record)
-            .subscribeOn(Schedulers.io())
-            .subscribe{ result->
-                when(result){
-                    is Result.Success -> {
-                        run { stepsDao.save(record) }
-                        _saveRecordObs.onNext(true)
+        return stepsRecordService.addNewRecord(record)
+            .map {
+                when(it){
+                    is Result.Success<*> -> {
+                        stepsDao.save(record).subscribeOn(Schedulers.io())
+                        true
                     }
-                    is Result.Error -> _saveRecordObs.onError(result.throwable)
+                    is Result.Error ->{
+                        throw it.throwable
+                    }
                 }
-            }
+            }.toObservable()
 
-        return  _saveRecordObs
     }
 
 }
