@@ -53,15 +53,16 @@ class SplashScreenViewModel @Inject constructor(
                     }
                     .startWith(SplashChange.Loading)
             }
-                .subscribeOn(Schedulers.io())
-                .scan(initialState, reducer)
-                .filter { !it.isIdle && !it.isLoading }
-                .distinctUntilChanged()
-                .subscribe({
-                    state.postValue(it)
-                    savedState.set(SAVED_STATE_KEY, it)
-                }, Timber::e)
+            .subscribeOn(Schedulers.io())
+            .scan(initialState, reducer)
+            .filter { !it.isIdle && !it.isLoading }
+            .distinctUntilChanged()
+            .subscribe({
+                state.postValue(it)
+                savedState.set(SAVED_STATE_KEY, it)
+            }, Timber::e)
 
+        dispatch(SplashAction.CheckForTodaysStepRecord)
 
 
     }

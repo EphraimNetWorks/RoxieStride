@@ -11,13 +11,13 @@ interface StepsRecordApi {
     @GET("v1/88ed478f/")
     fun fetchStepsRecords(): Single<Response<StepsRecordResponse>>
 
-    @DELETE("v1/88ed478f/{recordDay}")
-    fun deleteRecord(@Path("recordDay") recordDay: String):Single<Response<Any>>
+    @DELETE("v1/88ed478f/remove-record")
+    fun deleteRecord(@Query("recordDay") recordDay: String):Single<Response<Any>>
 
-    @POST("v1/88ed478f/")
+    @POST("v1/88ed478f/new-record")
     fun addNewRecord(@Body newRecord: StepsRecord):Single<Response<Any>>
 
-    @PUT("v1/88ed478f/")
+    @PUT("v1/88ed478f/edit-record")
     fun updateStepsRecord(@Body updatedRecord: StepsRecord):Single<Response<Any>>
 
 }

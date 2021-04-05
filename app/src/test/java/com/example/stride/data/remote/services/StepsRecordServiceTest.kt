@@ -8,11 +8,12 @@ import com.example.stride.data.remote.Result
 import com.example.stride.data.remote.api.StepsRecordApi
 import com.example.stride.data.remote.response.StepsRecordResponse
 import io.reactivex.Single
+import io.reactivex.observers.TestObserver
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.junit.Before
 
-import org.junit.Assert.*
+
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.*
@@ -48,16 +49,17 @@ class StepsRecordServiceTest {
         //GIVEN
         val testResponse = StepsRecordResponse(listOf(StepsRecord("",0)))
         whenever(stepsApi.fetchStepsRecords()).thenReturn(Single.just(retrofit2.Response.success(testResponse)))
+        val testObserver = TestObserver<Result<StepsRecordResponse>>()
 
         //WHEN
-        val resultObs = sut.getAllStepsRecords()
+        sut.getAllStepsRecords().subscribe(testObserver)
 
         //THEN
         verify(stepsApi, only()).fetchStepsRecords()
-        resultObs.subscribe { response->
-            assertTrue(response is Result.Success)
-            assertEquals((response as Result.Success).data, testResponse)
-        }
+        testObserver.assertNoErrors()
+            .assertOf {
+                it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == testResponse
+            }
 
     }
 
@@ -74,15 +76,17 @@ class StepsRecordServiceTest {
                     )
                 )
             )
+        val testObserver = TestObserver<Result<StepsRecordResponse>>()
 
         //WHEN
-        val resultObs = sut.getAllStepsRecords()
+        sut.getAllStepsRecords().subscribe(testObserver)
 
         //THEN
         verify(stepsApi, only()).fetchStepsRecords()
-        resultObs.subscribe { response->
-            assertTrue(response is Result.Error)
-        }
+        testObserver
+            .assertOf {
+                it.values()[0] is Result.Error
+            }
 
     }
 
@@ -92,16 +96,17 @@ class StepsRecordServiceTest {
         //GIVEN
         val testRecord = StepsRecord("",0)
         whenever(stepsApi.addNewRecord(testRecord)).thenReturn(Single.just(retrofit2.Response.success(true)))
+        val testObserver = TestObserver<Result<Any>>()
 
         //WHEN
-        val resultObs = sut.addNewRecord(testRecord)
+        sut.addNewRecord(testRecord).subscribe(testObserver)
 
         //THEN
         verify(stepsApi, only()).addNewRecord(testRecord)
-        resultObs.subscribe { response->
-            assertTrue(response is Result.Success)
-            assertEquals((response as Result.Success).data, true)
-        }
+        testObserver.assertNoErrors()
+            .assertOf {
+                it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == true
+            }
 
     }
 
@@ -119,15 +124,18 @@ class StepsRecordServiceTest {
                     )
                 )
             )
+        val testObserver = TestObserver<Result<Any>>()
 
         //WHEN
-        val resultObs = sut.addNewRecord(testRecord)
+        sut.addNewRecord(testRecord).subscribe(testObserver)
 
         //THEN
         verify(stepsApi, only()).addNewRecord(testRecord)
-        resultObs.subscribe { response->
-            assertTrue(response is Result.Error)
-        }
+
+        testObserver
+            .assertOf {
+                it.values()[0] is Result.Error
+            }
 
     }
 
@@ -137,16 +145,17 @@ class StepsRecordServiceTest {
         //GIVEN
         val testRecord = StepsRecord("",0)
         whenever(stepsApi.deleteRecord(testRecord.day)).thenReturn(Single.just(retrofit2.Response.success(true)))
+        val testObserver = TestObserver<Result<Any>>()
 
         //WHEN
-        val resultObs = sut.deleteRecord(testRecord)
+        sut.deleteRecord(testRecord).subscribe(testObserver)
 
         //THEN
         verify(stepsApi, only()).deleteRecord(testRecord.day)
-        resultObs.subscribe { response->
-            assertTrue(response is Result.Success)
-            assertEquals((response as Result.Success).data, true)
-        }
+        testObserver.assertNoErrors()
+            .assertOf {
+                it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == true
+            }
 
     }
 
@@ -164,15 +173,18 @@ class StepsRecordServiceTest {
                     )
                 )
             )
+        val testObserver = TestObserver<Result<Any>>()
 
         //WHEN
-        val resultObs = sut.deleteRecord(testRecord)
+        sut.deleteRecord(testRecord).subscribe(testObserver)
 
         //THEN
         verify(stepsApi, only()).deleteRecord(testRecord.day)
-        resultObs.subscribe { response->
-            assertTrue(response is Result.Error)
-        }
+
+        testObserver
+            .assertOf {
+                it.values()[0] is Result.Error
+            }
 
     }
 
@@ -182,16 +194,17 @@ class StepsRecordServiceTest {
         //GIVEN
         val testRecord = StepsRecord("",0)
         whenever(stepsApi.updateStepsRecord(testRecord)).thenReturn(Single.just(retrofit2.Response.success(true)))
+        val testObserver = TestObserver<Result<Any>>()
 
         //WHEN
-        val resultObs = sut.updateRecord(testRecord)
+        sut.updateRecord(testRecord).subscribe(testObserver)
 
         //THEN
         verify(stepsApi, only()).updateStepsRecord(testRecord)
-        resultObs.subscribe { response->
-            assertTrue(response is Result.Success)
-            assertEquals((response as Result.Success).data, true)
-        }
+        testObserver.assertNoErrors()
+            .assertOf {
+                it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == true
+            }
 
     }
 
@@ -209,15 +222,18 @@ class StepsRecordServiceTest {
                     )
                 )
             )
+        val testObserver = TestObserver<Result<Any>>()
 
         //WHEN
-        val resultObs = sut.updateRecord(testRecord)
+        sut.updateRecord(testRecord).subscribe(testObserver)
 
         //THEN
         verify(stepsApi, only()).updateStepsRecord(testRecord)
-        resultObs.subscribe { response->
-            assertTrue(response is Result.Error)
-        }
+
+        testObserver
+            .assertOf {
+                it.values()[0] is Result.Error
+            }
 
     }
 
