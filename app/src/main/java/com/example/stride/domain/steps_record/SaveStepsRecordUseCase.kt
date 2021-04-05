@@ -8,8 +8,6 @@ import com.example.stride.domain.BaseUseCase
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
-import timber.log.Timber
 import javax.inject.Inject
 
 class SaveStepsRecordUseCase @Inject constructor(
@@ -23,7 +21,7 @@ class SaveStepsRecordUseCase @Inject constructor(
             .map {
                 when(it){
                     is Result.Success<*> -> {
-                        stepsDao.save(record).subscribeOn(Schedulers.io())
+                        disposables += stepsDao.save(record).subscribeOn(Schedulers.io()).subscribe()
                         true
                     }
                     is Result.Error ->{

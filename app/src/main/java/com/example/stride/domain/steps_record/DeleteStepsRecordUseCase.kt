@@ -8,7 +8,6 @@ import com.example.stride.domain.BaseUseCase
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 class DeleteStepsRecordUseCase @Inject constructor(
@@ -22,7 +21,7 @@ class DeleteStepsRecordUseCase @Inject constructor(
             .map {
                 when(it){
                     is Result.Success<*> -> {
-                        stepsDao.delete(record).subscribeOn(Schedulers.io())
+                        disposables += stepsDao.delete(record).subscribeOn(Schedulers.io()).subscribe()
                         true
                     }
                     is Result.Error ->{

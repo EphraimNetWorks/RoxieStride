@@ -80,7 +80,7 @@ class SplashScreenViewModelTest {
             .thenReturn(Single.error<Optional<StepsRecord>>(RuntimeException(errMsg)).toObservable())
 
         //WHEN
-        //sut.dispatch(SplashAction.CheckForTodaysStepRecord)
+        sut.dispatch(SplashAction.CheckForTodaysStepRecord)
         testSchedulerRule.triggerActions()
 
         //THEN
