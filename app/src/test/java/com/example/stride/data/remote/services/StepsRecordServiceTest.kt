@@ -11,6 +11,7 @@ import io.reactivex.Single
 import io.reactivex.observers.TestObserver
 import okhttp3.MediaType
 import okhttp3.ResponseBody
+import org.junit.Assert
 import org.junit.Before
 
 
@@ -58,7 +59,7 @@ class StepsRecordServiceTest {
         verify(stepsApi, only()).fetchStepsRecords()
         testObserver.assertNoErrors()
             .assertOf {
-                it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == testResponse
+                Assert.assertTrue(it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == testResponse)
             }
 
     }
@@ -85,7 +86,7 @@ class StepsRecordServiceTest {
         verify(stepsApi, only()).fetchStepsRecords()
         testObserver
             .assertOf {
-                it.values()[0] is Result.Error
+                Assert.assertTrue(it.values()[0] is Result.Error)
             }
 
     }
@@ -105,7 +106,7 @@ class StepsRecordServiceTest {
         verify(stepsApi, only()).addNewRecord(testRecord)
         testObserver.assertNoErrors()
             .assertOf {
-                it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == true
+                Assert.assertTrue(it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == true)
             }
 
     }
@@ -134,7 +135,7 @@ class StepsRecordServiceTest {
 
         testObserver
             .assertOf {
-                it.values()[0] is Result.Error
+                Assert.assertTrue(it.values()[0] is Result.Error)
             }
 
     }
@@ -154,7 +155,7 @@ class StepsRecordServiceTest {
         verify(stepsApi, only()).deleteRecord(testRecord.day)
         testObserver.assertNoErrors()
             .assertOf {
-                it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == true
+                Assert.assertTrue(it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == true)
             }
 
     }
@@ -183,7 +184,7 @@ class StepsRecordServiceTest {
 
         testObserver
             .assertOf {
-                it.values()[0] is Result.Error
+                Assert.assertTrue(it.values()[0] is Result.Error)
             }
 
     }
@@ -203,7 +204,7 @@ class StepsRecordServiceTest {
         verify(stepsApi, only()).updateStepsRecord(testRecord)
         testObserver.assertNoErrors()
             .assertOf {
-                it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == true
+                Assert.assertTrue(it.values()[0] is Result.Success && (it.values()[0] as Result.Success).data == true)
             }
 
     }
@@ -232,7 +233,7 @@ class StepsRecordServiceTest {
 
         testObserver
             .assertOf {
-                it.values()[0] is Result.Error
+                Assert.assertTrue(it.values()[0] is Result.Error)
             }
 
     }

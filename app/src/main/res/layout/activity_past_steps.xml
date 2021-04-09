@@ -1,109 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.past_steps.PastStepsActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:id="@+id/today_step_count_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="32dp"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/today_you_have_taken"
-                android:textSize="20sp"
-                android:textColor="@color/black"
-                android:gravity="center"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="2000 steps"
-                android:textSize="48sp"
-                android:textStyle="bold"
-                android:textColor="@color/teal_700"
-                android:gravity="center"/>
-
-        </LinearLayout>
-
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/past_steps_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/today_step_count_layout"
-            android:layout_marginTop="48dp">
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:id="@+id/today_step_count_layout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/your_step_count_so_far"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="32dp"
+                android:gravity="center">
 
-            <com.jaredrummler.materialspinner.MaterialSpinner
-                android:id="@+id/filter_spinner"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/today_you_have_taken"
+                    android:textSize="20sp"
+                    android:textColor="@color/black"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/todays_record_steps_count_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="2000 steps"
+                    android:textSize="48sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/teal_700"
+                    android:gravity="center"/>
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/past_steps_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/today_step_count_layout"
+                android:layout_marginTop="48dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/your_step_count_so_far"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+                <com.jaredrummler.materialspinner.MaterialSpinner
+                    android:id="@+id/filter_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:ms_hide_arrow="true"
+                    android:text="@string/filter"
+                    android:textSize="16sp"
+                    android:layout_marginEnd="16dp"
+                    app:ms_padding_left="40dp"/>
+
+                <ImageView
+                    android:id="@+id/filter_icon"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_filter"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/filter_spinner"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/past_items_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:itemCount="0"
+                tools:listitem="@layout/past_steps_record_item"
+                app:layout_constraintTop_toBottomOf="@+id/past_steps_title"
+                android:layout_marginTop="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+            <TextView
+                android:id="@+id/no_steps_recorded_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="gone"
+                android:layout_marginTop="56dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/past_steps_title"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:ms_hide_arrow="true"
-                android:text="@string/filter"
-                android:textSize="16sp"
-                android:layout_marginEnd="16dp"
-                app:ms_padding_left="40dp"/>
-
-            <ImageView
-                android:id="@+id/filter_icon"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_filter"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="@id/filter_spinner"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                android:textSize="24sp"
+                android:textColor="@color/black"
+                android:text="@string/no_steps_recorded"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/past_items_recycler"
-            android:layout_width="match_parent"
+
+    <FrameLayout
+        android:id="@+id/progress_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#50000000"
+        android:visibility="gone">
+        <ProgressBar
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:listitem="@layout/past_steps_record_item"
-            app:layout_constraintTop_toBottomOf="@+id/past_steps_title"
-            android:layout_marginTop="8dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+            android:layout_gravity="center"
+            android:indeterminate="true"/>
+    </FrameLayout>
 
-        <FrameLayout
-            android:id="@+id/progress_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#50000000"
-            android:visibility="gone">
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:indeterminate="true"/>
-        </FrameLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.core.widget.NestedScrollView>
+</FrameLayout>

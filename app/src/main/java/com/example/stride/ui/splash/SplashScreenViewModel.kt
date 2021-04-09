@@ -53,7 +53,6 @@ class SplashScreenViewModel @Inject constructor(
                     }
                     .startWith(SplashChange.Loading)
             }
-            .subscribeOn(Schedulers.io())
             .scan(initialState, reducer)
             .filter { !it.isIdle && !it.isLoading }
             .distinctUntilChanged()

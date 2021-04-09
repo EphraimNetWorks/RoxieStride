@@ -13,7 +13,13 @@
         android:name=".Stride"
         android:theme="@style/Theme.Stride">
 
-        <activity android:name=".ui.past_steps.PastStepsActivity"></activity>
+        <activity android:name=".ui.past_steps.PastStepsActivity">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+        </activity>
         <activity android:name=".ui.record_step.RecordStepsActivity" />
         <activity android:name=".ui.splash.SplashScreenActivity">
             <intent-filter>

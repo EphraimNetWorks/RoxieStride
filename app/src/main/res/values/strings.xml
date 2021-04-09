@@ -8,4 +8,8 @@
     <string name="new_steps_record_validation_error_msg">Please enter the number of steps you have taken today</string>
     <string name="steps_count">%d steps</string>
     <string name="step_count">%d step</string>
+    <string name="past_3_days">Past 3 days</string>
+    <string name="past_month">Past month</string>
+    <string name="past_year">Past year</string>
+    <string name="no_steps_recorded">No steps recorded</string>
 </resources>

@@ -51,6 +51,7 @@ class RecordStepsViewModelTest {
         testSchedulerRule.triggerActions()
 
         //THEN
+        verify(observer).onChanged(RecordStepsState(isLoading = true))
         verify(observer).onChanged(recordExistState)
         verifyNoMoreInteractions(observer)
     }
@@ -70,6 +71,7 @@ class RecordStepsViewModelTest {
         testSchedulerRule.triggerActions()
 
         //THEN
+        verify(observer).onChanged(RecordStepsState(isLoading = true))
         verify(observer).onChanged(errorState)
         verifyNoMoreInteractions(observer)
     }

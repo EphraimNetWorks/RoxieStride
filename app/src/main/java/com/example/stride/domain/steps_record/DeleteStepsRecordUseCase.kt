@@ -6,8 +6,8 @@ import com.example.stride.data.remote.Result
 import com.example.stride.data.remote.services.StepsRecordService
 import com.example.stride.domain.BaseUseCase
 import io.reactivex.Observable
-import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 class DeleteStepsRecordUseCase @Inject constructor(
@@ -21,7 +21,13 @@ class DeleteStepsRecordUseCase @Inject constructor(
             .map {
                 when(it){
                     is Result.Success<*> -> {
-                        disposables += stepsDao.delete(record).subscribeOn(Schedulers.io()).subscribe()
+                        stepsDao.delete(record)
+                                .subscribeOn(Schedulers.io())
+                                .doOnComplete {
+                                    Timber.d("Record successfully deleted")
+                                }
+                                .doOnError(Timber::e)
+                                .subscribe()
                         true
                     }
                     is Result.Error ->{

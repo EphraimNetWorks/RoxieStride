@@ -1,6 +1,7 @@
 package com.example.stride.utils
 
 import android.content.Context
+import android.view.View
 import android.widget.Toast
 
 fun Context.toast(msg:String){
@@ -10,3 +11,7 @@ fun Context.toast(msg:String){
 data class Optional<T>(val value: T?)
 
 fun <T> T?.asOptional() = Optional(this)
+
+fun View.hide() { visibility = View.GONE }
+
+fun View.show() { visibility = View.VISIBLE }

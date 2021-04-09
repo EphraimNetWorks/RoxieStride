@@ -6,11 +6,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import com.example.stride.R
 import com.example.stride.data.local.entity.StepsRecord
 import com.example.stride.databinding.ActivityPastStepsBinding
+import com.example.stride.utils.hide
+import com.example.stride.utils.show
 import com.example.stride.utils.toast
+import com.jaredrummler.materialspinner.MaterialSpinner
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -38,6 +43,52 @@ class PastStepsActivity : AppCompatActivity() {
 
         viewModel.dispatch(PastStepsAction.GetTodaysStepsRecord)
 
+        binding.filterSpinner.setItems(mutableListOf(
+            getString(R.string.past_3_days),
+            getString(R.string.past_month) ,
+            getString(R.string.past_year)
+        ))
+        binding.filterSpinner.selectedIndex = 2
+
+        binding.filterSpinner.setOnItemSelectedListener(object : MaterialSpinner.OnItemSelectedListener<String>{
+            override fun onItemSelected(
+                view: MaterialSpinner?,
+                position: Int,
+                id: Long,
+                item: String
+            ) {
+                val filter = when(position){
+                    0->Filter.PAST_3_DAYS
+                    1->Filter.PAST_3_DAYS
+                    else->Filter.PAST_YEAR
+                }
+                viewModel.dispatch(PastStepsAction.GetStepsRecords(filter))
+            }
+        })
+
+        adapter.addLoadStateListener {
+            it.decideOnState(
+                showLoading = { visible ->
+                    if(visible){
+                        binding.progressLayout.show()
+                    }else{
+                        binding.progressLayout.hide()
+                    }
+                },
+                showEmptyState = { visible ->
+                    if(visible){
+                        binding.pastItemsRecycler.hide()
+                        binding.noStepsRecordedTextview.show()
+                    }else{
+                        binding.pastItemsRecycler.show()
+                        binding.noStepsRecordedTextview.hide()
+                    }
+                },
+                showError = { message ->
+                    toast(message)
+                }
+            )
+        }
     }
 
 
@@ -47,7 +98,15 @@ class PastStepsActivity : AppCompatActivity() {
             when{
                 isLoading-> renderPastStepsRecordsLoading()
                 isError-> renderPastStepsRecordsError(error)
-                pastStepsRecords != null->renderPastStepsRecordsSuccess(pastStepsRecords)
+                todaysRecord != null || pastStepsRecords != null-> {
+                    pastStepsRecords?.let {
+                        renderPastStepsRecordsSuccess(it)
+                    }
+                    todaysRecord?.let {
+                        renderTodaysRecordSuccess(it)
+                    }
+                }
+                else->{}
             }
         }
     }
@@ -64,6 +123,47 @@ class PastStepsActivity : AppCompatActivity() {
     private fun renderPastStepsRecordsSuccess(records: PagingData<StepsRecord>){
         binding.progressLayout.visibility = View.GONE
         adapter.submitData(lifecycle, records)
+
+        if(adapter.itemCount == 0 ){
+            binding.noStepsRecordedTextview.visibility = View.VISIBLE
+        }else{
+            binding.noStepsRecordedTextview.visibility = View.GONE
+        }
+    }
+
+    private fun renderTodaysRecordSuccess(record: StepsRecord){
+        binding.progressLayout.visibility = View.GONE
+
+        val countText = if(record.stepCount == 1){
+            getString(R.string.step_count, record.stepCount)
+        }else{
+            getString(R.string.steps_count, record.stepCount)
+        }
+
+        binding.todaysRecordStepsCountTextview.text = countText
+    }
+
+    private inline fun CombinedLoadStates.decideOnState(
+        showLoading: (Boolean) -> Unit,
+        showEmptyState: (Boolean) -> Unit,
+        showError: (String) -> Unit
+    ) {
+        showLoading(refresh is LoadState.Loading)
+
+        showEmptyState(
+            source.append is LoadState.NotLoading
+                    && source.append.endOfPaginationReached
+                    && adapter.itemCount == 0
+        )
+
+        val errorState = source.append as? LoadState.Error
+            ?: source.prepend as? LoadState.Error
+            ?: source.refresh as? LoadState.Error
+            ?: append as? LoadState.Error
+            ?: prepend as? LoadState.Error
+            ?: refresh as? LoadState.Error
+
+        errorState?.let { showError(it.error.toString()) }
     }
 
     companion object{

@@ -14,7 +14,7 @@ interface StepsRecordDao{
     @Query("SELECT * FROM steps_records WHERE day=:day LIMIT 1")
     fun getDayStepsRecord(day:String): Flowable<StepsRecord?>
 
-    @Query("SELECT * FROM steps_records WHERE day >= :fromDay")
+    @Query("SELECT * FROM steps_records WHERE day >= :fromDay ORDER BY day DESC")
     fun getStepRecords(fromDay: String):PagingSource<Int,StepsRecord>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

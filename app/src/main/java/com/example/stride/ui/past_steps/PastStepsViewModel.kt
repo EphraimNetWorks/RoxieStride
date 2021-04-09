@@ -1,6 +1,8 @@
 package com.example.stride.ui.past_steps
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
+import androidx.paging.rxjava2.cachedIn
 import com.example.stride.domain.steps_record.GetStepsRecordUseCase
 import com.example.stride.domain.steps_record.GetTodayRecordUseCase
 import com.ww.roxie.BaseViewModel
@@ -24,6 +26,7 @@ class PastStepsViewModel @Inject constructor(
 ): BaseViewModel<PastStepsAction,PastStepsState>() {
 
     private val reducer: Reducer<PastStepsState, PastStepsChange> = { state, change ->
+        Timber.d("Received change: $change")
         when(change){
             is PastStepsChange.PastRecordsLoading -> {
                 state.copy(isIdle = false, isLoading = true, isError = false, error = "")
@@ -47,7 +50,7 @@ class PastStepsViewModel @Inject constructor(
     }
 
     override val initialState: PastStepsState
-        get() = savedState.get<PastStepsState>(SAVED_STATE_KEY) ?: PastStepsState()
+        get() = savedState.get<PastStepsState>(SAVED_STATE_KEY) ?: PastStepsState(isIdle = true)
 
     init {
         bindActions()
@@ -58,6 +61,7 @@ class PastStepsViewModel @Inject constructor(
         val pastRecordsChange = actions.ofType<PastStepsAction.GetStepsRecords>()
             .switchMap {action->
                 getStepsRecordUseCase.getRecords(action.filter)
+                    .cachedIn(viewModelScope)
                     .subscribeOn(Schedulers.io())
                     .map<PastStepsChange> {
                         PastStepsChange.PastRecords(it)
@@ -84,13 +88,15 @@ class PastStepsViewModel @Inject constructor(
         val allChanges = Observable.merge(todaysRecordChange, pastRecordsChange)
 
         disposables += allChanges
-            .subscribeOn(Schedulers.io())
             .scan(initialState, reducer)
-            .filter { !it.isIdle }
+            .filter { !it.isIdle && !it.isLoading }
             .distinctUntilChanged()
-            .doOnNext { Timber.d("Received state: $it") }
+            .doOnNext {
+                Timber.d("Received state: $it")
+            }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
+                Timber.d("Received subscribed state: $it")
                 state.value = it
                 savedState.set(SAVED_STATE_KEY,it)
             }, Timber::e)

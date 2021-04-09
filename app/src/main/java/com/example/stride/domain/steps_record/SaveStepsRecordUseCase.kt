@@ -6,8 +6,7 @@ import com.example.stride.data.remote.Result
 import com.example.stride.data.remote.services.StepsRecordService
 import com.example.stride.domain.BaseUseCase
 import io.reactivex.Observable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 class SaveStepsRecordUseCase @Inject constructor(
@@ -15,20 +14,25 @@ class SaveStepsRecordUseCase @Inject constructor(
     private val stepsDao: StepsRecordDao
 ): BaseUseCase() {
 
-    fun saveRecord(record: StepsRecord): Observable<*> {
+    fun saveRecord(record: StepsRecord): Observable<Boolean> {
 
         return stepsRecordService.addNewRecord(record)
-            .map {
-                when(it){
-                    is Result.Success<*> -> {
-                        disposables += stepsDao.save(record).subscribeOn(Schedulers.io()).subscribe()
-                        true
+                .map {
+                    when(it){
+                        is Result.Success<*> -> {
+                            stepsDao.save(record)
+                                    .doOnComplete {
+                                        Timber.d("Record successfully saved")
+                                    }
+                                    .doOnError(Timber::e)
+                                    .subscribe()
+                            true
+                        }
+                        is Result.Error ->{
+                            throw it.throwable
+                        }
                     }
-                    is Result.Error ->{
-                        throw it.throwable
-                    }
-                }
-            }.toObservable()
+                }.toObservable()
 
     }
 

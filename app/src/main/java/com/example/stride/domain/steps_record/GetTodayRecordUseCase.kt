@@ -12,6 +12,7 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
+import timber.log.Timber
 import javax.inject.Inject
 
 class GetTodayRecordUseCase @Inject constructor(
@@ -34,7 +35,13 @@ class GetTodayRecordUseCase @Inject constructor(
                         }
                         is Result.Success<*> -> {
                             val data = (it.data as StepsRecordResponse).data ?: listOf()
-                            stepsDao.save(*data.toTypedArray()).subscribeOn(Schedulers.io())
+                            stepsDao.save(*data.toTypedArray())
+                                    .subscribeOn(Schedulers.io())
+                                    .doOnComplete {
+                                        Timber.d("${data.size} Records successfully saved")
+                                    }
+                                    .doOnError(Timber::e)
+                                    .subscribe()
                             val todaysRecord = data.find { record -> record.day == todaysDate }
                             todaysRecord?.asOptional() ?: Optional(null)
                         }

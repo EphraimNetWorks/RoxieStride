@@ -17,6 +17,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
+import timber.log.Timber
 import javax.inject.Inject
 
 class GetStepsRecordUseCase @Inject constructor(
@@ -29,14 +30,14 @@ class GetStepsRecordUseCase @Inject constructor(
 
         val fromDate = filterToFromDate(filter)
 
-        disposables += refreshStepRecords().subscribeOn(Schedulers.io()).subscribe()
+        disposables += refreshStepRecords().doOnError { Timber.e(it) }.subscribeOn(Schedulers.io()).subscribe()
 
         return  Pager(
             config = PagingConfig(
                 pageSize = 20,
                 maxSize = 30,
                 prefetchDistance = 5,
-                initialLoadSize = 40),
+                initialLoadSize = 20),
             pagingSourceFactory = { stepsDao.getStepRecords(fromDate) }
         ).observable
     }
@@ -47,7 +48,13 @@ class GetStepsRecordUseCase @Inject constructor(
                 when(result){
                     is Result.Success -> {
                         val data = result.data.data ?: listOf()
-                        stepsDao.save(*data.toTypedArray()).subscribeOn(Schedulers.io())
+                        stepsDao.save(*data.toTypedArray())
+                                .subscribeOn(Schedulers.io())
+                                .doOnComplete {
+                                    Timber.d("${data.size} Records successfully saved")
+                                }
+                                .doOnError(Timber::e)
+                                .subscribe()
                         true
                     }
                     is Result.Error -> throw result.throwable

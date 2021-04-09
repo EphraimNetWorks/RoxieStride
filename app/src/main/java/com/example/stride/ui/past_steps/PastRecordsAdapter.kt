@@ -25,6 +25,8 @@ class PastRecordsAdapter :
         }
     }
 
+
+
     companion object{
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<StepsRecord>(){
             override fun areItemsTheSame(oldItem: StepsRecord, newItem: StepsRecord): Boolean {

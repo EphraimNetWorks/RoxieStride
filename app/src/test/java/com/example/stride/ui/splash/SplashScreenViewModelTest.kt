@@ -12,10 +12,7 @@ import org.junit.Before
 
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.*
 import java.lang.RuntimeException
 
 class SplashScreenViewModelTest {
@@ -51,7 +48,7 @@ class SplashScreenViewModelTest {
         testSchedulerRule.triggerActions()
 
         //THEN
-        verify(observer).onChanged(recordExistState)
+        verify(observer, timeout(5000)).onChanged(recordExistState)
         verifyNoMoreInteractions(observer)
     }
 

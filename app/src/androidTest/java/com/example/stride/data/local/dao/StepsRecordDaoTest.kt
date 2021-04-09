@@ -4,13 +4,11 @@ import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.stride.RxTestSchedulerRule
 import com.example.stride.data.local.AppDatabase
 import com.example.stride.data.local.entity.StepsRecord
 import io.reactivex.observers.TestObserver
-import org.hamcrest.CoreMatchers.equalTo
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -67,6 +65,7 @@ class StepsRecordDaoTest {
     fun given_days_step_record_successfully_deleted_When_delete_is_received_Then_record_should_not_exist_in_database() {
         //GIVEN
         val testObserver = TestObserver<StepsRecord>()
+        stepsRecordDao.save(testRecord).subscribe()
 
         //WHEN
         stepsRecordDao.delete(testRecord).subscribe()

@@ -49,7 +49,6 @@ class RecordStepsViewModel @Inject constructor(
             }
 
         disposables += newRecordChange
-            .subscribeOn(Schedulers.io())
             .scan(initialState, reducer)
             .filter {
                 !it.isIdle
