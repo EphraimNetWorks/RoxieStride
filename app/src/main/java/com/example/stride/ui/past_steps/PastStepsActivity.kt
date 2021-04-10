@@ -49,9 +49,11 @@ class PastStepsActivity : AppCompatActivity() {
 
         binding.pastItemsRecycler.adapter = adapter
 
-        viewModel.dispatch(PastStepsAction.GetStepsRecords(Filter.PAST_YEAR))
+        if (savedInstanceState == null){
+            viewModel.dispatch(PastStepsAction.GetStepsRecords(Filter.PAST_YEAR))
 
-        viewModel.dispatch(PastStepsAction.GetTodaysStepsRecord)
+            viewModel.dispatch(PastStepsAction.GetTodaysStepsRecord)
+        }
 
         binding.filterSpinner.setItems(mutableListOf(
             getString(R.string.past_3_days),
@@ -131,6 +133,10 @@ class PastStepsActivity : AppCompatActivity() {
                 else->{}
             }
         }
+    }
+
+    override fun onBackPressed() {
+        finishAffinity()
     }
 
     private fun renderPastStepsRecordsError(errorMsg: String){

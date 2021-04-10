@@ -9,7 +9,6 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
-import androidx.core.content.ContextCompat
 
 
 fun Context.toast(msg: String){

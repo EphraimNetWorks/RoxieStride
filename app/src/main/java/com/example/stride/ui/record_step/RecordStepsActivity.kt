@@ -74,6 +74,10 @@ class RecordStepsActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onBackPressed() {
+        finishAffinity()
+    }
+
     private fun renderState(state: RecordStepsState){
         with(state){
             when{
