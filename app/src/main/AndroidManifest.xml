@@ -13,10 +13,16 @@
         android:name=".Stride"
         android:theme="@style/Theme.Stride">
 
-        <activity android:name=".ui.past_steps.PastStepsActivity">
+        <activity
+            android:name=".ui.past_steps.PastStepsActivity"
+            android:launchMode="singleTask">
         </activity>
-        <activity android:name=".ui.record_step.RecordStepsActivity" />
-        <activity android:name=".ui.splash.SplashScreenActivity" android:theme="@style/Theme.Stride.NoActionBar">
+        <activity
+            android:name=".ui.record_step.RecordStepsActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".ui.splash.SplashScreenActivity"
+            android:theme="@style/Theme.Stride.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

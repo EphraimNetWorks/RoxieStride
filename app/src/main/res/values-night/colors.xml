@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="spinner_bg">#1B1A1A</color>
+    <color name="text_black">#ffffff</color>
+    <color name="text_teal">@color/teal_200</color>
+</resources>

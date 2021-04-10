@@ -2,10 +2,18 @@ package com.example.stride.ui.past_steps
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
 import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SwitchCompat
+import androidx.core.content.ContextCompat
+import androidx.core.view.get
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.paging.PagingData
@@ -18,6 +26,7 @@ import com.example.stride.utils.toast
 import com.jaredrummler.materialspinner.MaterialSpinner
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.example.stride.utils.setTitleColor
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
@@ -34,7 +43,8 @@ class PastStepsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(ContextCompat.getColor(this, R.color.design_default_color_primary)))
+        supportActionBar?.setTitleColor(Color.WHITE)
         viewModel.observableState.observe(this, this::renderState)
 
         binding.pastItemsRecycler.adapter = adapter
@@ -78,10 +88,8 @@ class PastStepsActivity : AppCompatActivity() {
                 showEmptyState = { visible ->
                     if(visible){
                         binding.pastItemsRecycler.hide()
-                        binding.noStepsRecordedTextview.show()
                     }else{
                         binding.pastItemsRecycler.show()
-                        binding.noStepsRecordedTextview.hide()
                     }
                 },
                 showError = { message ->
@@ -91,7 +99,21 @@ class PastStepsActivity : AppCompatActivity() {
         }
     }
 
-
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.light_dark_theme_menu,menu)
+        val themeSwitch = (menu[0].actionView as SwitchCompat)
+        themeSwitch.isChecked =
+                resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        themeSwitch.setOnCheckedChangeListener { _, _ ->
+            when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+                Configuration.UI_MODE_NIGHT_YES ->
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                Configuration.UI_MODE_NIGHT_NO ->
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+        }
+        return true
+    }
 
     private fun renderState(state: PastStepsState){
         with(state){
@@ -123,12 +145,6 @@ class PastStepsActivity : AppCompatActivity() {
     private fun renderPastStepsRecordsSuccess(records: PagingData<StepsRecord>){
         binding.progressLayout.visibility = View.GONE
         adapter.submitData(lifecycle, records)
-
-        if(adapter.itemCount == 0 ){
-            binding.noStepsRecordedTextview.visibility = View.VISIBLE
-        }else{
-            binding.noStepsRecordedTextview.visibility = View.GONE
-        }
     }
 
     private fun renderTodaysRecordSuccess(record: StepsRecord){
