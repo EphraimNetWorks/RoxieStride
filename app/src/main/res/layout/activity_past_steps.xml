@@ -8,11 +8,11 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:id="@+id/today_step_count_layout"
@@ -91,8 +91,9 @@
                 android:id="@+id/past_items_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:itemCount="0"
+                tools:itemCount="5"
                 tools:listitem="@layout/past_steps_record_item"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/past_steps_title"
                 android:layout_marginTop="8dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>

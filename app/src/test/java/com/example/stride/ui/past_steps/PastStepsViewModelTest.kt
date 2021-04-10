@@ -11,14 +11,18 @@ import com.example.stride.domain.steps_record.GetStepsRecordUseCase
 import com.example.stride.domain.steps_record.GetTodayRecordUseCase
 import com.example.stride.utils.Optional
 import io.reactivex.Single
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.Before
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.setMain
+import org.junit.*
 
-import org.junit.Rule
-import org.junit.Test
+import org.mockito.ArgumentCaptor
+import org.mockito.Captor
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.capture
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import java.lang.RuntimeException
 
@@ -31,6 +35,11 @@ class PastStepsViewModelTest {
     @get:Rule
     val testSchedulerRule = RxTestSchedulerRule()
 
+    @Captor
+    lateinit var pastStateCaptor: ArgumentCaptor<PastStepsState>
+
+    private val testCoroutineDispatcher = TestCoroutineDispatcher()
+
     private lateinit var sut: PastStepsViewModel
 
     private val getStepsRecordUseCase = mock<GetStepsRecordUseCase>()
@@ -40,8 +49,15 @@ class PastStepsViewModelTest {
 
     @Before
     fun setUp() {
+        MockitoAnnotations.initMocks(this)
         sut = PastStepsViewModel(savedStateHandle, getStepsRecordUseCase, getTodayRecordUseCase)
+        Dispatchers.setMain(testCoroutineDispatcher)
         sut.observableState.observeForever(observer)
+    }
+
+    @After
+    fun tearDown(){
+        testCoroutineDispatcher.cleanupTestCoroutines()
     }
 
     @Test
@@ -91,7 +107,14 @@ class PastStepsViewModelTest {
         testSchedulerRule.triggerActions()
 
         //THEN
-        verify(observer).onChanged(successState)
+        verify(observer).onChanged(capture(pastStateCaptor))
+        val onChangedState = pastStateCaptor.value
+        Assert.assertNotNull(onChangedState.pastStepsRecords)
+        Assert.assertEquals(onChangedState.isLoading, successState.isLoading)
+        Assert.assertEquals(onChangedState.isError, successState.isError)
+        Assert.assertEquals(onChangedState.error, successState.error)
+        Assert.assertEquals(onChangedState.todaysRecord, successState.todaysRecord)
+        Assert.assertEquals(onChangedState.isIdle, successState.isIdle)
     }
 
 
