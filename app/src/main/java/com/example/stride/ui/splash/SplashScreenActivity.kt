@@ -3,12 +3,15 @@ package com.example.stride.ui.splash
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.stride.R
 import com.example.stride.ui.past_steps.PastStepsActivity
 import com.example.stride.ui.record_step.RecordStepsActivity
 import com.example.stride.utils.toast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @ExperimentalCoroutinesApi
@@ -37,8 +40,11 @@ class SplashScreenActivity : AppCompatActivity() {
     }
 
     private fun renderHasTodaysRecordError(errorMsg: String){
-        toast(errorMsg)
-        startActivity(RecordStepsActivity.newInstance(this))
+        lifecycleScope.launch {
+            delay(3000)
+            toast(errorMsg)
+            startActivity(RecordStepsActivity.newInstance(this@SplashScreenActivity))
+        }
     }
 
     private fun renderHasTodaysRecordLoading(){
@@ -46,12 +52,15 @@ class SplashScreenActivity : AppCompatActivity() {
     }
 
     private fun renderHasTodaysRecordSuccess(isMostRecentToday: Boolean){
-        val intent = if(isMostRecentToday){
-            PastStepsActivity.newInstance(this)
-        }else{
-            RecordStepsActivity.newInstance(this)
+        lifecycleScope.launch {
+            delay(3000)
+            val intent = if(isMostRecentToday){
+                PastStepsActivity.newInstance(this@SplashScreenActivity)
+            }else{
+                RecordStepsActivity.newInstance(this@SplashScreenActivity)
+            }
+            startActivity(intent)
         }
-        startActivity(intent)
     }
 
 }

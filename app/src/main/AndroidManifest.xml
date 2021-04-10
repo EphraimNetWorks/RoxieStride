@@ -14,14 +14,9 @@
         android:theme="@style/Theme.Stride">
 
         <activity android:name=".ui.past_steps.PastStepsActivity">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
         </activity>
         <activity android:name=".ui.record_step.RecordStepsActivity" />
-        <activity android:name=".ui.splash.SplashScreenActivity">
+        <activity android:name=".ui.splash.SplashScreenActivity" android:theme="@style/Theme.Stride.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
